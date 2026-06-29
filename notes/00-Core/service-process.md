@@ -22,6 +22,32 @@ Port
 
 ---
 
+## Nginx Example
+
+```text
+systemd
+    ↓
+nginx.service
+    ↓
+Nginx master process
+    ↓
+Nginx worker process
+    ↓
+Listen socket
+    ↓
+HTTP port
+```
+
+Key point:
+
+```text
+Service is the management unit.
+Process is the real running entity.
+Worker process handles real client connections.
+```
+
+---
+
 ## Future Docker Extension
 
 ```text
