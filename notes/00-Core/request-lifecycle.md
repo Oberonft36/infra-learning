@@ -7,7 +7,7 @@ This document tracks how a user request flows through infrastructure layers.
 ## Current Basic Model
 
 ```text
-Browser
+Client
     ↓
 DNS
     ↓
@@ -25,27 +25,27 @@ HTTP Response
 ## Nginx Model
 
 ```text
-Browser
+Client
     ↓
 DNS
     ↓
-TCP
+TCP Connection
     ↓
-HTTP
+Nginx Worker Process
     ↓
-Nginx
+HTTP Request
     ↓
-Upstream Application
-    ↓
-Response
+HTTP Response
 ```
+
+The master process manages workers. The worker process handles real HTTP traffic.
 
 ---
 
 ## Future Kubernetes Model
 
 ```text
-Browser
+Client
     ↓
 DNS
     ↓
@@ -66,8 +66,4 @@ Response
 
 ## Purpose
 
-This file answers one question:
-
-```text
-What happens after a user sends a request?
-```
+This file answers: what happens after a user sends a request?
