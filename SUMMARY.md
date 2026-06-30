@@ -30,6 +30,7 @@
 - DNS
 - Port
 - TCP
+- TCP Socket Lifecycle
 - UDP
 - HTTP
 - HTTPS
@@ -44,6 +45,7 @@
 - Architecture
 - Master Process
 - Worker Process
+- Socket and accept()
 - Reverse Proxy
 - Load Balancing
 - Configuration
