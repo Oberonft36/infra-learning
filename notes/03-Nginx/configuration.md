@@ -122,6 +122,24 @@ The master process reads configuration.
 Workers do not independently read configuration.
 ```
 
+## Configuration Drives Runtime
+
+The Nginx master process builds the runtime environment from configuration.
+
+```text
+Master
+    ↓
+Read configuration
+    ↓
+Build runtime environment
+    ↓
+Create listen socket
+    ↓
+Fork worker processes
+```
+
+This explains why editing `nginx.conf` alone does not immediately affect a running Nginx instance. The master process must reread configuration before a new runtime environment can be built.
+
 ## include
 
 The main configuration can load child configuration files through `include`.
