@@ -64,6 +64,115 @@ Kernel returns an established connection
 
 ---
 
+## Client System Call Path
+
+For a client such as `curl`, the request starts in user space and enters the kernel through system calls.
+
+```text
+curl application
+    ↓
+socket()
+    ↓
+Kernel creates a socket object and returns fd
+    ↓
+connect(fd, target IP:Port)
+    ↓
+Kernel starts TCP connection establishment
+    ↓
+TCP connection becomes ESTABLISHED
+    ↓
+curl sends HTTP request bytes
+```
+
+Important distinction:
+
+```text
+systemctl uses DBus to talk to systemd.
+curl does not use DBus for networking.
+curl uses socket-related system calls to enter the kernel networking stack.
+```
+
+---
+
+## Server Listen Socket Queues
+
+A server listen socket has listening state after `listen()`.
+
+Simplified lifecycle:
+
+```text
+socket()
+    ↓
+bind()
+    ↓
+listen()
+    ↓
+accept()
+```
+
+In a simplified TCP model, the listen socket is associated with two queues:
+
+```text
+SYN queue:
+connections that have started but not fully completed the TCP handshake
+
+Accept queue:
+connections that have completed the TCP handshake and are waiting for accept()
+```
+
+Connection establishment path:
+
+```text
+client sends SYN
+    ↓
+server kernel records half-open state
+    ↓
+client completes handshake
+    ↓
+connection enters accept queue
+    ↓
+kernel wakes a process blocked in accept()
+    ↓
+accept() returns a new connected socket fd
+```
+
+The listen socket remains responsible for receiving new connections.
+The connected socket fd is used for one established client connection.
+
+---
+
+## Packet to Socket Lookup
+
+When TCP traffic reaches the host, the kernel checks socket state before handing anything to an application process.
+
+Simplified lookup model:
+
+```text
+TCP traffic reaches host
+    ↓
+Kernel checks destination IP, destination port, protocol, source IP, source port
+    ↓
+If it belongs to an existing established connection:
+    deliver it to the connected socket
+    ↓
+Otherwise, if it is a new connection attempt and a listen socket matches local IP:Port:
+    perform TCP connection establishment
+    ↓
+After establishment, place the connection into the accept queue
+```
+
+A listen socket bound to `0.0.0.0:80` can match local IPv4 traffic to port 80.
+A listen socket bound to a specific local address only matches that address and port.
+
+Key distinction:
+
+```text
+Established TCP traffic goes to a connected socket.
+New TCP connection attempts are matched against a listen socket.
+```
+
+---
+
 ## Nginx Model
 
 ```text
@@ -115,9 +224,13 @@ Client sends request
     ↓
 Kernel finds the listen socket
     ↓
+TCP connection is established
+    ↓
+Connection waits in the accept queue
+    ↓
 Kernel wakes one worker waiting on accept()
     ↓
-Worker receives the connection
+Worker receives a connected socket fd
     ↓
 Worker parses HTTP Request
     ↓
