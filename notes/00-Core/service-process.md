@@ -51,6 +51,35 @@ Worker process handles real client connections.
 
 ---
 
+## Configuration to Runtime Model
+
+Many infrastructure components follow the same lifecycle.
+
+```text
+Program
+    ↓
+Manager process or daemon
+    ↓
+Read configuration
+    ↓
+Build runtime environment
+    ↓
+Create runtime resources
+    ↓
+Start worker processes or child processes
+```
+
+Core idea:
+
+```text
+Configuration does not execute itself.
+A manager process reads configuration and builds the runtime environment.
+```
+
+This model prepares future learning of containerd, kubelet, Prometheus, CoreDNS, and other infrastructure components.
+
+---
+
 ## Future Docker Extension
 
 ```text
