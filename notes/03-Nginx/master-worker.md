@@ -195,6 +195,15 @@ Worker process inherits the same listen socket
 This means workers do not need to create the listen socket again.
 They can directly wait for incoming connections through the inherited socket.
 
+Important correction:
+
+```text
+fork() inherits file descriptors.
+fork() does not mean master and worker share one normal memory space.
+```
+
+For Nginx, the key inherited object is the file descriptor that refers to the listen socket.
+
 ---
 
 ## accept() Model
@@ -240,6 +249,28 @@ That worker handles the connection
 The worker selection is not done by systemd.
 It is not manually done by the Nginx master for each request.
 At this level of abstraction, the kernel wakes one worker waiting on `accept()`.
+
+---
+
+## Listen FD vs Connected FD
+
+The listen socket is used to receive new connections.
+
+When `accept()` succeeds, it returns a new file descriptor.
+That new descriptor represents one established client connection.
+
+```text
+listen socket fd
+    ↓
+accept()
+    ↓
+connected socket fd
+    ↓
+read HTTP request / write HTTP response
+```
+
+So the worker does not use the listen socket itself to exchange HTTP data with every client.
+It uses a connected socket returned by `accept()`.
 
 ---
 
@@ -292,6 +323,7 @@ Worker writes HTTP Response
 | Master process | Reads config, creates listen socket, forks and manages workers |
 | Worker process | Waits on accept(), handles client connections and HTTP processing |
 | Listen socket | Kernel object bound to an IP:port and used to receive new TCP connections |
+| Connected socket | Kernel object representing one established TCP connection |
 | Port 80 | Default HTTP port number |
 | Kernel | Owns socket state, TCP state, PID allocation, and connection delivery |
 | accept() | Operation workers use to receive established connections from the listen socket |
