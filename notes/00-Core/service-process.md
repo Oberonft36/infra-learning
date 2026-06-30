@@ -31,9 +31,11 @@ nginx.service
     ↓
 Nginx master process
     ↓
-Nginx worker process
+nginx.conf
     ↓
 Listen socket
+    ↓
+Nginx worker process
     ↓
 HTTP port
 ```
@@ -43,6 +45,7 @@ Key point:
 ```text
 Service is the management unit.
 Process is the real running entity.
+Master process reads configuration.
 Worker process handles real client connections.
 ```
 
