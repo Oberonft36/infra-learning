@@ -51,6 +51,46 @@ Worker process handles real client connections.
 
 ---
 
+## Nginx Master / Worker / Socket Detail
+
+A more precise Nginx startup model is:
+
+```text
+systemctl start nginx
+    ↓
+systemd reads nginx.service
+    ↓
+systemd starts /usr/sbin/nginx
+    ↓
+Kernel creates the Nginx master process and assigns PID
+    ↓
+Master reads nginx.conf
+    ↓
+Master prepares the runtime environment
+    ↓
+Master creates the listen socket through socket(), bind(), listen()
+    ↓
+Master fork()s worker processes
+    ↓
+Workers inherit the listen socket file descriptor
+    ↓
+Workers wait in accept()
+```
+
+Important distinction:
+
+```text
+systemd manages the service lifecycle.
+Master manages Nginx runtime and workers.
+Kernel owns PID, socket, and TCP state.
+Workers accept established connections and handle HTTP.
+```
+
+`fork()` inheritance here mainly means file descriptor inheritance.
+It does not mean the master and workers share one normal memory space.
+
+---
+
 ## Configuration to Runtime Model
 
 Many infrastructure components follow the same lifecycle.
