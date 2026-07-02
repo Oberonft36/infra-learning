@@ -119,6 +119,30 @@ TCP and UDP do not share the same detailed protocol state model.
 
 ---
 
+## File Descriptor Path
+
+A process does not directly hold the kernel TCP state.
+
+It holds a file descriptor.
+
+```text
+process
+    ↓
+fd
+    ↓
+struct file
+    ↓
+struct socket
+    ↓
+struct sock
+```
+
+The fd is the user-space handle.
+
+The kernel objects below the fd contain the socket and protocol state.
+
+---
+
 ## Purpose
 
 This file explains what is below the word "socket" in later notes about TCP, Nginx, Docker, Kubernetes, and AI Infrastructure.
