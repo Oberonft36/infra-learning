@@ -206,6 +206,36 @@ For Nginx, the key inherited object is the file descriptor that refers to the li
 
 ---
 
+### Kernel Object Behind the Inherited Socket FD
+
+The inherited listen socket fd points to kernel-managed socket objects.
+
+```text
+worker fd
+    ↓
+struct file
+    ↓
+struct socket
+    ↓
+struct sock
+```
+
+For Nginx learning, the key point is:
+
+```text
+Workers inherit the fd.
+Kernel owns the socket and TCP state.
+Workers call accept() to receive connected socket fds.
+```
+
+For the deeper kernel structure, see:
+
+```text
+notes/02-Network/socket-kernel-structure.md
+```
+
+---
+
 ## accept() Model
 
 Workers wait for new TCP connections by calling `accept()`.
