@@ -34,6 +34,44 @@ AI Infrastructure / LLMOps
 
 ---
 
+## Kernel Socket Internal Model
+
+The `Socket` node in the infrastructure map can be expanded into kernel-side objects.
+
+```text
+Process
+    ↓
+File Descriptor
+    ↓
+struct file
+    ↓
+struct socket
+    ↓
+struct sock
+    ↓
+TCP case: struct tcp_sock
+```
+
+Key relationship:
+
+```text
+fd is the user-space handle.
+struct socket is the protocol-independent socket interface.
+struct sock / tcp_sock stores protocol-specific connection state.
+```
+
+This model explains why the same socket abstraction appears in:
+
+```text
+Nginx worker accept()
+Docker container networking
+Kubernetes Service / kube-proxy forwarding
+Service Mesh proxy traffic handling
+AI model serving gateways
+```
+
+---
+
 ## Nginx Socket Extension
 
 Nginx connects Linux process, socket, TCP, and HTTP models into a single infrastructure execution path.
