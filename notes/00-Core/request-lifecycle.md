@@ -64,6 +64,38 @@ Kernel returns an established connection
 
 ---
 
+### Kernel Object Path Behind a Socket
+
+When a process uses a socket fd, the request path enters several kernel-side objects.
+
+```text
+process read/write/send/recv
+    ↓
+file descriptor
+    ↓
+struct file
+    ↓
+struct socket
+    ↓
+struct sock / tcp_sock
+    ↓
+TCP/IP stack
+```
+
+This means the application does not directly manage TCP sequence state, window state, protocol buffers, or connection queues.
+
+The process uses a file descriptor.
+
+The kernel manages the socket and protocol state.
+
+See:
+
+```text
+notes/02-Network/socket-kernel-structure.md
+```
+
+---
+
 ## Client System Call Path
 
 For a client such as `curl`, the request starts in user space and enters the kernel through system calls.
