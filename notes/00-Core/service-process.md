@@ -91,6 +91,30 @@ It does not mean the master and workers share one normal memory space.
 
 ---
 
+## Inherited FD and Kernel Socket State
+
+When a worker inherits the listen socket fd, the fd still points to kernel socket state.
+
+```text
+worker fd
+    ↓
+struct file
+    ↓
+struct socket
+    ↓
+struct sock
+```
+
+For Nginx, the important point is:
+
+```text
+workers inherit fd
+kernel owns socket state
+workers wait in accept()
+```
+
+---
+
 ## Configuration to Runtime Model
 
 Many infrastructure components follow the same lifecycle.
