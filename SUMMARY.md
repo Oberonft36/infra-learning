@@ -7,6 +7,7 @@
 - Request Lifecycle
 - Service → Process → PID
 - Network Stack Overview
+- Kernel Socket Internal Model
 
 ---
 
@@ -31,6 +32,8 @@
 - Port
 - TCP
 - TCP Socket Lifecycle
+- Linux Socket Kernel Structure
+- struct socket vs struct sock
 - UDP
 - HTTP
 - HTTPS
