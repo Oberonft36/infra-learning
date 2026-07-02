@@ -31,6 +31,37 @@ Process is the user-space program instance that handles application logic.
 
 ---
 
+## Kernel Socket Internal Structure
+
+At the Linux kernel level, socket behavior is layered rather than flat.
+
+```text
+user fd
+    ↓
+struct file
+    ↓
+struct socket
+    ↓
+struct sock
+    ↓
+TCP case: struct tcp_sock
+```
+
+For TCP learning, the key distinction is:
+
+```text
+struct socket is the protocol-independent socket interface layer.
+struct sock / struct tcp_sock stores protocol-specific TCP state.
+```
+
+See:
+
+```text
+notes/02-Network/socket-kernel-structure.md
+```
+
+---
+
 ## Client-Side Socket Lifecycle
 
 For a client program such as `curl`, the simplified lifecycle is:
