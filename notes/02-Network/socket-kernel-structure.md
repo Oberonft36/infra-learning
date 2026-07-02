@@ -143,6 +143,52 @@ The kernel objects below the fd contain the socket and protocol state.
 
 ---
 
+## Relationship to Nginx
+
+Nginx workers inherit the listen socket fd from the master process.
+
+That does not mean the workers copy the kernel socket object.
+
+```text
+worker fd
+    ↓
+struct file
+    ↓
+struct socket
+    ↓
+struct sock
+```
+
+For Nginx learning, the key relationship is:
+
+```text
+Workers inherit fd.
+Kernel owns socket and TCP state.
+Workers call accept() to receive connected socket fds.
+```
+
+---
+
+## Long-Term Infrastructure Meaning
+
+The same model appears later in Docker networking, Kubernetes Pod networking, Service and Ingress traffic delivery, service mesh proxies, and AI model serving gateways.
+
+The durable abstraction is:
+
+```text
+Process
+    ↓
+fd
+    ↓
+Kernel socket
+    ↓
+Protocol state
+    ↓
+Network stack
+```
+
+---
+
 ## Purpose
 
 This file explains what is below the word "socket" in later notes about TCP, Nginx, Docker, Kubernetes, and AI Infrastructure.
